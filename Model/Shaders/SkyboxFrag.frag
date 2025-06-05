@@ -8,7 +8,7 @@ layout(binding = kMaterialConstants) uniform FragConstants
 	float TextureLevel;
 };
 
-layout (binding = kCommonSamplers) uniform samplerCube radianceIBLTexture;
+layout (binding = kCommonCubeSamplers) uniform samplerCube radianceIBLTexture;
 
 layout (location = 0) in vec3 viewDir;
 

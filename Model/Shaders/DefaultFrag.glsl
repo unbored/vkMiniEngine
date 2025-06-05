@@ -7,13 +7,13 @@ layout (binding = kMaterialSamplers) uniform sampler2D matTex[5];
 #define emissiveTexture matTex[3]
 #define normalTexture matTex[4]
 
-layout (binding = kCommonSamplers) uniform samplerCube cubeTex[];
-layout (binding = kCommonSamplers) uniform sampler2D comTex[];
-layout (binding = kCommonSamplers) uniform sampler2DShadow shadowTex[];
+layout (binding = kCommonCubeSamplers) uniform samplerCube cubeTex[];
+layout (binding = kCommon2DSamplers) uniform sampler2D comTex[];
+layout (binding = kCommonShadowSamplers) uniform sampler2DShadow shadowTex[];
 #define radianceIBLTexture cubeTex[0]
 #define irradianceIBLTexture cubeTex[1]
-#define texSSAO comTex[2]
-#define texSunShadow shadowTex[3]
+#define texSSAO comTex[0]
+#define texSunShadow shadowTex[0]
 
 layout (binding = kMaterialConstants) uniform MaterialConstants
 {

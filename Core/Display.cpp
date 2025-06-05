@@ -497,7 +497,7 @@ void Display::Present(void)
     int64_t CurrentTick = SystemTime::GetCurrentTick();
 
     s_FrameTime = (float)SystemTime::TimeBetweenTicks(s_FrameStartTick, CurrentTick);
-    printf("Frame time: %f\n", s_FrameTime);
+    // printf("Frame time: %f\n", s_FrameTime);
 
     s_FrameStartTick = CurrentTick;
 

@@ -74,9 +74,10 @@ GraphicsPSO m_DefaultPSO("Renderer: Default PSO"); // Not finalized.  Used as a 
 
 vk::Sampler DefaultSampler;
 vk::Sampler CubeMapSampler;
-//std::vector<vk::DescriptorImageInfo> m_CommonCubeTextures;
-//std::vector<vk::DescriptorImageInfo> m_Common2DTextures;
-std::vector<vk::DescriptorImageInfo> m_CommonTextures;
+std::vector<vk::DescriptorImageInfo> m_CommonCubeTextures;
+std::vector<vk::DescriptorImageInfo> m_Common2DTextures;
+std::vector<vk::DescriptorImageInfo> m_CommonShadowTextures;
+// std::vector<vk::DescriptorImageInfo> m_CommonTextures;
 } // namespace Renderer
 
 void Renderer::Initialize()
@@ -104,12 +105,14 @@ void Renderer::Initialize()
     m_DescriptorSet.AddBindings(kMaterialSamplers, 1, vk::DescriptorType::eCombinedImageSampler, kNumTextures,
                                 vk::ShaderStageFlagBits::eFragment);
     // kCommonSamplers
-    //m_DescriptorSet.AddBindings(kCommonCubeSamplers, 1, vk::DescriptorType::eCombinedImageSampler, 2,
-    //                            vk::ShaderStageFlagBits::eFragment);
-    //m_DescriptorSet.AddBindings(kCommon2DSamplers, 1, vk::DescriptorType::eCombinedImageSampler, 2,
-    //                            vk::ShaderStageFlagBits::eFragment);
-     m_DescriptorSet.AddBindings(kCommonSamplers, 1, vk::DescriptorType::eCombinedImageSampler, 4,
-                                vk::ShaderStageFlagBits::eFragment);
+    m_DescriptorSet.AddBindings(kCommonCubeSamplers, 1, vk::DescriptorType::eCombinedImageSampler, 2,
+                               vk::ShaderStageFlagBits::eFragment);
+    m_DescriptorSet.AddBindings(kCommon2DSamplers, 1, vk::DescriptorType::eCombinedImageSampler, 1,
+                               vk::ShaderStageFlagBits::eFragment);
+    m_DescriptorSet.AddBindings(kCommonShadowSamplers, 1, vk::DescriptorType::eCombinedImageSampler, 1,
+                               vk::ShaderStageFlagBits::eFragment);
+    //  m_DescriptorSet.AddBindings(kCommonSamplers, 1, vk::DescriptorType::eCombinedImageSampler, 4,
+    //                             vk::ShaderStageFlagBits::eFragment);
     // kCommonConstants
     m_DescriptorSet.AddBindings(kCommonConstants, 1, vk::DescriptorType::eUniformBuffer, 1,
                                 vk::ShaderStageFlagBits::eAll);
@@ -231,17 +234,18 @@ void Renderer::Initialize()
 
     TextureManager::Initialize("");
 
-    //m_CommonCubeTextures = std::vector<vk::DescriptorImageInfo>{
-    //    {CubeMapSampler, GetDefaultTexture(kColorCubeMap), vk::ImageLayout::eShaderReadOnlyOptimal},
-    //    {DefaultSampler, GetDefaultTexture(kColorCubeMap), vk::ImageLayout::eShaderReadOnlyOptimal}};
-    //m_Common2DTextures = std::vector<vk::DescriptorImageInfo>{
-    //    {SamplerNearestClamp, g_SSAOFullScreen, vk::ImageLayout::eShaderReadOnlyOptimal},
-    //    {SamplerShadow, g_ShadowBuffer, vk::ImageLayout::eShaderReadOnlyOptimal}};
-    m_CommonTextures = std::vector<vk::DescriptorImageInfo>{
-        {CubeMapSampler, GetDefaultTexture(kColorCubeMap), vk::ImageLayout::eShaderReadOnlyOptimal},
-        {DefaultSampler, GetDefaultTexture(kColorCubeMap), vk::ImageLayout::eShaderReadOnlyOptimal},
-        {SamplerNearestClamp, g_SSAOFullScreen, vk::ImageLayout::eShaderReadOnlyOptimal},
-        {SamplerShadow, g_ShadowBuffer, vk::ImageLayout::eShaderReadOnlyOptimal}};
+    m_CommonCubeTextures = std::vector<vk::DescriptorImageInfo>{
+       {CubeMapSampler, GetDefaultTexture(kColorCubeMap), vk::ImageLayout::eShaderReadOnlyOptimal},
+       {DefaultSampler, GetDefaultTexture(kColorCubeMap), vk::ImageLayout::eShaderReadOnlyOptimal}};
+    m_Common2DTextures = std::vector<vk::DescriptorImageInfo>{
+       {SamplerNearestClamp, g_SSAOFullScreen, vk::ImageLayout::eShaderReadOnlyOptimal}};
+    m_CommonShadowTextures = std::vector<vk::DescriptorImageInfo>{
+       {SamplerShadow, g_ShadowBuffer, vk::ImageLayout::eShaderReadOnlyOptimal}};
+    // m_CommonTextures = std::vector<vk::DescriptorImageInfo>{
+    //     {CubeMapSampler, GetDefaultTexture(kColorCubeMap), vk::ImageLayout::eShaderReadOnlyOptimal},
+    //     {DefaultSampler, GetDefaultTexture(kColorCubeMap), vk::ImageLayout::eShaderReadOnlyOptimal},
+    //     {SamplerNearestClamp, g_SSAOFullScreen, vk::ImageLayout::eShaderReadOnlyOptimal},
+    //     {SamplerShadow, g_ShadowBuffer, vk::ImageLayout::eShaderReadOnlyOptimal}};
 
 
     s_Initialized = true;
@@ -518,9 +522,9 @@ void Renderer::SetIBLTextures(TextureRef diffuseIBL, TextureRef specularIBL)
         s_SpecularIBLRange = std::max(0.0f, (float)tex->GetMipLevels() - 1);
         s_SpecularIBLBias = std::min(s_SpecularIBLBias, s_SpecularIBLRange);
     }
-    m_CommonTextures[0].imageView =
+    m_CommonCubeTextures[0].imageView =
         specularIBL.IsValid() ? vk::ImageView(*specularIBL.Get()) : GetDefaultTexture(kColorCubeMap);
-    m_CommonTextures[1].imageView =
+    m_CommonCubeTextures[1].imageView =
         diffuseIBL.IsValid() ? vk::ImageView(*diffuseIBL.Get()) : GetDefaultTexture(kColorCubeMap);
 }
 
@@ -547,8 +551,10 @@ void Renderer::DrawSkybox(GraphicsContext &gfxContext, const Camera &camera, con
     // gfxContext.BeginUpdateDescriptorSet();
     gfxContext.UpdateDynamicUniformBuffer(kMeshConstants, sizeof(skyVSCB), &skyVSCB);
     gfxContext.UpdateDynamicUniformBuffer(kMaterialConstants, sizeof(skyFSCB), &skyFSCB);
-    //gfxContext.UpdateImageSampler(kCommonCubeSamplers, 0, m_CommonCubeTextures);
-    gfxContext.UpdateImageSampler(kCommonSamplers, 0, m_CommonTextures);
+    gfxContext.UpdateImageSampler(kCommonCubeSamplers, 0, m_CommonCubeTextures);
+    gfxContext.UpdateImageSampler(kCommon2DSamplers, 0, m_Common2DTextures);
+    gfxContext.UpdateImageSampler(kCommonShadowSamplers, 0, m_CommonShadowTextures);
+    // gfxContext.UpdateImageSampler(kCommonSamplers, 0, m_CommonTextures);
     // gfxContext.EndUpdateAndBindDescriptorSet();
 
     gfxContext.TransitionImageLayout(g_SceneDepthBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal);
@@ -682,12 +688,15 @@ void MeshSorter::RenderMeshes(DrawPass pass, GraphicsContext &context, GlobalCon
     ASSERT(m_DepthBuffer != nullptr);
 
     // Update common textures, in case they are changed
-    m_CommonTextures[2].imageView = g_SSAOFullScreen;
-    m_CommonTextures[3].imageView = g_ShadowBuffer;
+    m_Common2DTextures[0].imageView = g_SSAOFullScreen;
+    m_CommonShadowTextures[0].imageView = g_ShadowBuffer;
 
     context.SetDescriptorSet(m_DescriptorSet);
     // context.BeginUpdateDescriptorSet();
-    context.UpdateImageSampler(kCommonSamplers, 0, m_CommonTextures);
+    context.UpdateImageSampler(kCommonCubeSamplers, 0, m_CommonCubeTextures);
+    context.UpdateImageSampler(kCommon2DSamplers, 0, m_Common2DTextures);
+    context.UpdateImageSampler(kCommonShadowSamplers, 0, m_CommonShadowTextures);
+    // context.UpdateImageSampler(kCommonSamplers, 0, m_CommonTextures);
     // Set common shader constants
     globals.ViewProjMatrix = m_Camera->GetViewProjMatrix();
     globals.CameraPos = glm::vec4(m_Camera->GetPosition(), 0.0);

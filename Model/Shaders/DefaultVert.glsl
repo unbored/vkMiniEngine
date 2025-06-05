@@ -22,7 +22,7 @@ struct Joint
     mat3x4 NrmMatrix; // Inverse-transpose of PosMatrix
 };
 
-layout (binding = kSkinMatrices) buffer SkinMatrices
+readonly layout (binding = kSkinMatrices) buffer SkinMatrices
 {
 	Joint Joints[];
 };

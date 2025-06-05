@@ -28,18 +28,20 @@ extern BoolVar SeparateZPass;
 extern GraphicsPSO m_PSO;
 
 extern std::vector<std::vector<vk::DescriptorImageInfo>> m_TextureHeap;
-//extern std::vector<vk::DescriptorImageInfo> m_CommonCubeTextures;
-//extern std::vector<vk::DescriptorImageInfo> m_Common2DTextures;
-extern std::vector<vk::DescriptorImageInfo> m_CommonTextures;
+extern std::vector<vk::DescriptorImageInfo> m_CommonCubeTextures;
+extern std::vector<vk::DescriptorImageInfo> m_Common2DTextures;
+extern std::vector<vk::DescriptorImageInfo> m_CommonShadowTextures;
+// extern std::vector<vk::DescriptorImageInfo> m_CommonTextures;
 
 enum DescriptorBindings
 {
     kMeshConstants,
     kMaterialConstants,
     kMaterialSamplers,
-    //kCommonCubeSamplers,
-    //kCommon2DSamplers,
-    kCommonSamplers,
+    kCommonCubeSamplers,
+    kCommon2DSamplers,
+    kCommonShadowSamplers,
+    // kCommonSamplers,
     kCommonConstants,
     kSkinMatrices,
 

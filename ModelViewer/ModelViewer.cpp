@@ -245,6 +245,7 @@ void ModelViewer::RenderScene(void)
     gfxContext.ClearColor(g_SceneColorBuffer);
 
     gfxContext.TransitionImageLayout(g_SSAOFullScreen, vk::ImageLayout::eShaderReadOnlyOptimal);
+    gfxContext.TransitionImageLayout(g_ShadowBuffer, vk::ImageLayout::eShaderReadOnlyOptimal);
     gfxContext.TransitionImageLayout(g_SceneDepthBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal);
     // gfxContext.SetRenderTarget(g_SceneColorBuffer.GetRTV(), g_SceneDepthBuffer.GetDSV_DepthReadOnly());
     gfxContext.SetViewportAndScissor(m_MainViewport, m_MainScissor);
