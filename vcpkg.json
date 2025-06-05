@@ -1,0 +1,30 @@
+{
+    "dependencies": [
+        "vulkan-memory-allocator",
+        "vulkan-memory-allocator-hpp",
+        {
+            "name": "glslang",
+            "features": [ "tools" ]
+        },
+        {
+            "name": "ktx",
+            "features": [ "vulkan" ]
+        },
+        "glm",
+        "glfw3",
+        "zlib",
+        "tinyutf8",
+        "stb"
+    ],
+  "overrides": [
+    {
+        "name": "vulkan-memory-allocator",
+        "version": "3.1.0"
+    },
+    {
+        "name": "vulkan-memory-allocator-hpp",
+        "version-string": "3.1.0#1"
+    }
+  ],
+  "builtin-baseline": "2ec65725864eb30841b0b58573f8324a5d545a86"
+}

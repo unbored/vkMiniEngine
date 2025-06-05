@@ -1,0 +1,9 @@
+#version 450
+
+#define TILE_DIM_X 32
+#define TILE_DIM_Y 24
+#define ENABLE_FAST_PATH 1
+
+#extension GL_GOOGLE_include_directive : enable
+#include "LanczosFunctions.glsl"
+#include "4x4UpsampleComp.glsl"
