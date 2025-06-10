@@ -103,7 +103,7 @@ float Fresnel_Schlick(float F0, float F90, float cosine)
 
 float G_GGX(float k, float cosine)
 {
-    return cosine / max(1e-6, mix(k, 1, cosine));
+    return 1.0 / max(1e-6, mix(k, 1, cosine));  // cosine numerator is cancelled
 }
 
 // Specular G
@@ -145,7 +145,7 @@ vec3 Specular_BRDF(SurfaceProperties surface, LightProperties light)
     vec3 SF = Fresnel_Schlick(surface, light);
     float SG = G_GGX_Schlick(surface, light);
 
-    return SD * SF * SG / (4.0 * light.NdotL * surface.NdotV);
+    return SD * SF * SG / 4.0; // light.NdotL * surface.NdotV in denominator is cancelled
 }
 
 // Diffuse irradiance
@@ -235,12 +235,19 @@ void main()
 	// Begin accumulating light starting with emissive
     vec3 colorAccum = emissive;
 
+#if 0
+	float sunShadow = texture(texSunShadow, vertOutput.sunShadowCoord);
+	colorAccum += ShadeDirectionalLight(surface, SunDirection, sunShadow * SunIntensity);
+
+    // Old-school ambient light
+    colorAccum += surface.c_diff * 0.1;
+
+#else
 	// Add IBL
     colorAccum += Diffuse_IBL(surface);
     colorAccum += Specular_IBL(surface);
 
-	float sunShadow = texture(texSunShadow, vertOutput.sunShadowCoord).x;
-	colorAccum += ShadeDirectionalLight(surface, SunDirection, sunShadow * SunIntensity);
+#endif
 
 	outColor = vec4(colorAccum, baseColor.a);
 }
